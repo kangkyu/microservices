@@ -1,10 +1,13 @@
 package db
 
 import (
-	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
+	"fmt"
+	"time"
 
 	"github.com/kangkyu/microservices/order/internal/application/domain"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 type Order struct {
@@ -68,15 +71,7 @@ func (a Adapter) Get(id int64) (domain.Order, error) {
 }
 
 func (a Adapter) Save(order *domain.Order) error {
-	var orderItems []OrderItem
-	for _, orderItem := range order.OrderItems {
-		orderItems = append(orderItems, OrderItem{
-			ProductCode: orderItem.ProductCode,
-			UnitPrice:   orderItem.UnitPrice,
-			Quantity:    orderItem.Quantity,
-			OrderID:     order.ID,
-		})
-	}
+
 	orderModel := Order{
 		CustomerID: order.CustomerID,
 		Status:     order.Status,
@@ -85,15 +80,29 @@ func (a Adapter) Save(order *domain.Order) error {
 	if err != nil {
 		return err
 	}
-	err = tx.Exec("INSERT INTO orders (customer_id, status) VALUES ($1, $2)", orderModel.CustomerID, orderModel.Status)
+	var orderID int64
+	err = tx.QueryRow("INSERT INTO orders (customer_id, status) VALUES ($1, $2) RETURNING id", orderModel.CustomerID, orderModel.Status).Scan(&orderID)
 	if err != nil {
 		return err
 	}
-	err = tx.NamedExec("INSERT INTO order_items (product_code, unit_price, quantity, order_id) VALUES (:product_code, :unit_price, :quantity, :order_id)", orderItems)
+	var orderItems []OrderItem
+	for _, orderItem := range order.OrderItems {
+		orderItems = append(orderItems, OrderItem{
+			ProductCode: orderItem.ProductCode,
+			UnitPrice:   orderItem.UnitPrice,
+			Quantity:    orderItem.Quantity,
+			OrderID:     orderID,
+		})
+	}
+	_, err = tx.NamedExec("INSERT INTO order_items (product_code, unit_price, quantity, order_id) VALUES (:product_code, :unit_price, :quantity, :order_id)", orderItems)
 	if err != nil {
 		return err
 	}
 	err = tx.Commit()
+
+	if err == nil {
+		order.ID = orderID
+	}
 
 	return err
 }
