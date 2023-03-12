@@ -39,3 +39,8 @@ $ grpcurl -d '{"user_id": 123, "order_items": [{"product_code": "prod", "quantit
   "orderId": "13"
 }
 ```
+
+* `payment` service
+$ cd payment
+$ DATABASE_URL=postgres://kangkyu:postgres@localhost:5432/payment_db?sslmode=disable dbmate up
+$ DATA_SOURCE_URL=postgres://kangkyu:postgres@localhost:5432/payment_db?sslmode=disable APPLICATION_PORT=3001 ENV=development go run cmd/main.go
