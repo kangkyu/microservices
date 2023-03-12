@@ -5,6 +5,6 @@ import (
 )
 
 type DBPort interface {
-	Get(id string) (domain.Order, error)
+	Get(id int64) (domain.Order, error)
 	Save(*domain.Order) error // save Order domain into database
 }
