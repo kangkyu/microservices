@@ -16,13 +16,6 @@ brew install postgresql@14
 brew services start postgresql@14
 ```
 
-* `payment` service
-```
-$ cd payment
-$ DATABASE_URL=postgres://kangkyu:postgres@localhost:5432/payment_db?sslmode=disable dbmate up
-$ DATA_SOURCE_URL=postgres://kangkyu:postgres@localhost:5432/payment_db?sslmode=disable APPLICATION_PORT=3001 ENV=development go run cmd/main.go
-```
-
 * `order` service
 
 Run the code written in Go (database url is going to be your local url)
@@ -41,6 +34,10 @@ $ grpcurl -d '{"user_id": 123, "order_items": [{"product_code": "prod", "quantit
 ```
 
 * `payment` service
+
+Run at port 3001 (same port with `PAYMENT_SERVICE_URL` above)
+```
 $ cd payment
 $ DATABASE_URL=postgres://kangkyu:postgres@localhost:5432/payment_db?sslmode=disable dbmate up
 $ DATA_SOURCE_URL=postgres://kangkyu:postgres@localhost:5432/payment_db?sslmode=disable APPLICATION_PORT=3001 ENV=development go run cmd/main.go
+```
