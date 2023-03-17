@@ -51,8 +51,8 @@ func (a Adapter) Save(ctx context.Context, payment *domain.Payment) error {
 		TotalPrice: payment.TotalPrice,
 	}
 	var paymentID int64
-	stmt := "INSERT INTO payments (customer_id, status, order_id, total_price) VALUES (:customer_id, :status, :order_id, :total_price) RETURNING id"
-	err := a.db.QueryRowContext(ctx, stmt, paymentModel).Scan(&paymentID)
+	stmt := "INSERT INTO payments (customer_id, status, order_id, total_price) VALUES ($1, $2, $3, $4) RETURNING id"
+	err := a.db.QueryRowContext(ctx, stmt, paymentModel.CustomerID, paymentModel.Status, paymentModel.OrderID, paymentModel.TotalPrice).Scan(&paymentID)
 	if err == nil {
 		payment.ID = paymentID
 	}
