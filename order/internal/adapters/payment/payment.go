@@ -26,7 +26,6 @@ func NewAdapter(paymentServiceUrl string) (*Adapter, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
 
 	// initialize new payment stub instance
 	client := payment.NewPaymentClient(conn)
